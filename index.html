@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escala Multi-Cultos 📅</title>
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bem-Vindos">
+  <link rel="icon" href="apple-touch-icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { color: #2D3142; font-family: 'Inter', sans-serif; background-color: #F4F7FC; padding: 20px 15px; max-width: 600px; margin: 0 auto; }
+    h2 { text-align: center; font-size: 20px; font-weight: 600; padding-top: 1rem; margin-bottom: 4px; }
+    .subtitulo { text-align: center; font-size: 12px; color: #9095A0; margin-bottom: 16px; }
+    .cartao { background: #FFFFFF; padding: 16px 18px; border-radius: 16px; border: 0.5px solid #E5E7EB; margin-bottom: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+    select.sel-culto { width: 100%; padding: 12px; border: 2px solid #4A60FF; border-radius: 12px; font-size: 15px; font-weight: 600; color: #4A60FF; margin-bottom: 14px; background: #f0f3ff; }
+    .grupo { margin-bottom: 14px; }
+    .grupo:last-child { margin-bottom: 0; }
+    .grupo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 0.5px solid #E5E7EB; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .grupo-header span { font-size: 12px; font-weight: 600; }
+    .grupo-header .info { font-size: 10px; color: #9095A0; margin-left: auto; }
+    .slots { display: flex; flex-wrap: wrap; gap: 8px; }
+    .slot { flex: 1 1 44%; min-width: 120px; display: flex; flex-direction: column; gap: 3px; }
+    .slot label { font-size: 10px; color: #9095A0; font-weight: 600; }
+    .slot select { padding: 8px 10px; border: 1px solid #ccc; border-left-width: 3px; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 600; color: #2D3142; }
+    .divider { height: 0.5px; background: #E5E7EB; margin: 14px 0; }
+  
+    .badge { font-size: 10px; background: #f0f3ff; border: 0.5px solid #4A60FF; border-radius: 20px; padding: 2px 8px; color: #4A60FF; margin-left: 6px; font-weight: 600; }
+
+    /* --- SALÃO HEADER --- */
+    .salao-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .salao-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .btn-dist   { background: #E2E8FF; color: #4A60FF; border: none; border-radius: 10px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .btn-limpar { background: transparent; color: #9095A0; border: 1px solid #E5E7EB; border-radius: 10px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 5px; }
+    .btn-gerar  { background: #4A60FF; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 600; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 6px 15px rgba(74,96,255,0.3); }
+
+    /* Rodapé do dropdown com botão distribuir */
+    .dist-footer {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #E5E7EB;
+    }
+    .btn-dist-panel {
+      width: 100%;
+      padding: 12px;
+      background: #4A60FF;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(74,96,255,0.35);
+      transition: opacity 0.15s;
+    }
+    .btn-dist-panel:active { opacity: 0.85; }
+
+    /* --- CHIPS SELECIONADOS (linha de tags acima do dropdown) --- */
+    .chips-selecionados { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 0; }
+    .chip-sel {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px 4px 12px;
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+      background: #4A60FF; color: #fff; border: none; cursor: default;
+    }
+    .chip-sel .rem { cursor: pointer; font-size: 15px; line-height: 1; opacity: 0.75; margin-left: 2px; }
+    .chip-sel .rem:hover { opacity: 1; }
+
+    /* --- DROPDOWN RETRÁTIL --- */
+    .dropdown-wrap { position: relative; margin-bottom: 10px; }
+    .dropdown-trigger {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px dashed #C7D0FF;
+      border-radius: 12px;
+      background: #f8f9ff;
+      color: #4A60FF; font-size: 13px; font-weight: 600;
+      cursor: pointer; user-select: none;
+      display: flex; align-items: center; justify-content: space-between;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .dropdown-trigger:active { background: #eef0ff; }
+    .dropdown-arrow { font-size: 11px; transition: transform 0.2s; }
+    .dropdown-trigger.aberto .dropdown-arrow { transform: rotate(180deg); }
+
+    .dropdown-painel {
+      display: none;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+      margin-top: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .dropdown-painel.aberto { display: block; }
+
+    .secao-label { font-size: 10px; font-weight: 600; color: #9095A0; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px; margin-top: 10px; }
+    .secao-label:first-child { margin-top: 0; }
+
+    .chips-lista { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+    .chip-nome {
+      padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+      cursor: pointer; user-select: none; transition: all 0.15s;
+      border: 1px solid #E5E7EB; background: #F4F7FC; color: #9095A0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chip-nome:active { transform: scale(0.95); }
+    .chip-nome.on  { background: #4A60FF; color: #fff; border-color: #4A60FF; }
+    .chip-nome.ind { opacity: 0.3; pointer-events: none; text-decoration: line-through; }
+
+    .area-resultado { text-align: center; display: none; }
+    .area-resultado img { max-width: 100%; border-radius: 12px; margin-top: 10px; }
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+
+  <h2>Escala Multi-Cultos</h2>
+  <p class="subtitulo">Ministério Bem-Vindos — Mananciais Vila Valqueire</p>
+
+  <select id="seletorCulto" class="sel-culto" onchange="mudarCulto()"></select>
+
+  <div class="cartao" id="cardFuncoes"></div>
+
+  <div class="cartao">
+    <div class="salao-header">
+      <h3>Bem-Vindo Salão <span id="badgeSalao" class="badge">0 presentes</span></h3>
+      <button class="btn-limpar" onclick="limparSalao()">Limpar tudo</button>
+    </div>
+
+    <!-- Chips dos selecionados -->
+    <div id="chipsSelecionados" class="chips-selecionados"></div>
+
+    <!-- Dropdown retrátil -->
+    <div class="dropdown-wrap">
+      <div class="dropdown-trigger" id="dropTrigger" onclick="toggleDropdown()">
+        <span>👥 Selecionar presentes</span>
+        <span class="dropdown-arrow">▼</span>
+      </div>
+      <div class="dropdown-painel" id="dropPainel">
+        <div id="chipsSalaoLista" class="chips-lista"></div>
+        <!-- Botão distribuir no rodapé do painel -->
+        <div class="dist-footer">
+          <button class="btn-dist-panel" onclick="distribuirEFechar()">
+            ✨ Distribuir nas zonas
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div id="formSalao" class="slots"></div>
+    <button class="btn-gerar" onclick="gerarImagem()">Gerar imagem pronta</button>
+  </div>
+
+  <canvas id="meuCanvas"></canvas>
+  <div class="cartao area-resultado" id="areaResultado">
+    <p style="font-size:12px;color:#9095A0;margin-bottom:8px;">Pressione e segure para salvar no celular.</p>
+    <img id="imagemFinal" src="" alt="Escala gerada">
+  </div>
+
+<script>
+  const LISTA_ASSESSORIA = ["Andressa Lipovetsky","Juliana Souza","Larissa Araújo","Luciana Galvão","Patricia Madeira"];
+
+  const LISTA_LIDER = ["Amaury Silva","Bruno Herminio","João Do Carmo","Leonardo Silva","Leonardo Renzetti","Marcus Nascimento","Matheus Marques","Nilton Silva","Pablo Souza","Romario","Sérgio Rodrigues","Taylor Lipovetsky","Vinicius Araujo"];
+
+  const LISTA_RECEPCAO = ["Amaury Silva","Andressa Lipovetsky","Bernardo Barros","Carolina Dias","Edite Mendes","Flávia Hermínio","Gabriel Azevedo","Gabriel Elias","Gabriella Marques","Guilherme Coelho","Janaina Heringer","Jaqueline do Carmo","Júlio Costa","Larissa Araújo","Leonardo Renzetti","Lohanya Pomponet","Maria Luiza Cury","Matheus Marques","Pablo Souza","Patricia Madeira","Raíssa Mathera","Talyta Renzetti","Tamires Andrade","Thayná Caetano","Victor Pomponet","Vinicius Araujo"];
+
+  const LISTA_APOIO = ["Alvanice Cabral","Amaury Silva","Ana Célia Firmino","Ana Lucia Barbosa","Ana Lúcia Pimentel","Andressa Lipovetsky","Bernardo Barros","Bruno Herminio","Carolina Carvalho","Carolina Dias","Fábio Leal","Flávia Hermínio","Flávia Tavares","Gabriel Azevedo","Gabriel Elias","Gabriele Costa","Guilherme Coelho","Ihully Aguiar","Janaina Heringer","Jaqueline do Carmo","João Do Carmo","João Vitor Ferreira Randolfo","Juliana Souza","Júlio Costa","Laura Martins","Leonardo Renzetti","Leonardo Silva","Lohanya Pomponet","Luciana Galvão","Marcus Nascimento","Maria Luiza Cury","Matheus Marques","Márcio Rodrigues","Nilton Silva","Pablo Souza","Patricia Madeira","Priscila Vieira","Raíssa Mathera","Sandro","Sérgio Rodrigues","Talyta Renzetti","Tamires Andrade","Taylor Lipovetsky","Thayná Caetano","Victor Pomponet","Vinicius Araujo","Yuri Oliveira"];
+
+  const LISTA_SALAO = ["Alvanice Cabral","Amaury Silva","Ana Célia Firmino","Ana Lucia Barbosa","Ana Lúcia Pimentel","Andressa Lipovetsky","Bernardo Barros","Bruno Herminio","Carolina Carvalho","Carolina Dias","Edite Mendes","Fábio Leal","Flávia Hermínio","Flávia Tavares","Gabriel Azevedo","Gabriel Elias","Gabriel Lima","Gabriele Costa","Gabriella Marques","Guilherme Coelho","Helenice Araujo","Ihully Aguiar","Janaina Heringer","Jaqueline do Carmo","João Do Carmo","João Vitor Ferreira Randolfo","Juliana Souza","Júlio Costa","Larissa Araújo","Laura Gonzaga","Leonardo Renzetti","Leonardo Silva","Lohanya Pomponet","Luciana Galvão","Marco Costa","Marcus Nascimento","Maria Luiza Cury","Matheus Marques","Márcio Rodrigues","Nilton Silva","Pablo Souza","Patricia Madeira","Priscila Vieira","Raíssa Mathera","Sandro","Sérgio Rodrigues","Talyta Renzetti","Tamires Andrade","Tatiane Amaral","Taylor Lipovetsky","Thayná Caetano","Victor Pomponet","Vinicius Araujo","Yuri Oliveira"];
+
+  // Homens do ministério — usado para revezar gêneros na distribuição
+  const HOMENS_SET = new Set(["Amaury Silva","Bernardo Barros","Bruno Herminio","Fábio Leal","Gabriel Azevedo","Gabriel Elias","Gabriel Lima","Guilherme Coelho","João Do Carmo","João Vitor Ferreira Randolfo","Júlio Costa","Leonardo Renzetti","Leonardo Silva","Marco Costa","Marcus Nascimento","Matheus Marques","Márcio Rodrigues","Nilton Silva","Pablo Souza","Romario","Sandro","Sérgio Rodrigues","Taylor Lipovetsky","Victor Pomponet","Vinicius Araujo","Yuri Oliveira"]);
+
+  let presSalao = {};
+  LISTA_SALAO.forEach(n => presSalao[n] = false);
+
+  const FUNCOES = [
+    { id:'assessoria', label:'Assessoria',           cor:'#22c55e', slots:1, grupo: LISTA_ASSESSORIA },
+    { id:'lider',      label:'Líder da Escala',      cor:'#3b82f6', slots:1, grupo: LISTA_LIDER },
+    { id:'intendente', label:'Recepção Intendente',  cor:'#ef4444', slots:2, grupo: LISTA_RECEPCAO },
+    { id:'quiririm',   label:'Recepção Quiririm',    cor:'#f97316', slots:2, grupo: LISTA_RECEPCAO },
+    { id:'apoio',      label:'Apoio Bem-Vindo',      cor:'#06b6d4', slots:4, grupo: LISTA_APOIO },
+  ];
+
+  const CULTOS = [
+    { value:'domingo1', label:'Domingo 1º Culto (18 Zonas)', salaoCount:9, imagem:'domingo1.jpg',
+      zonas:{ assessoria:'Assessoria', lider:'Zona 18', intendente:['Zona 13','Zona 14'], quiririm:['Zona 15','Zona 17'], apoio:['Zona 10','Zona 11','Zona 12','Zona 16'], salao:Array.from({length:9},(_,i)=>`Zona ${i+1}`) }},
+    { value:'domingo2', label:'Domingo 2º Culto (14 Zonas)', salaoCount:5, imagem:'domingo2.jpg',
+      zonas:{ assessoria:'Assessoria', lider:'Zona 14', intendente:['Zona 9','Zona 10'], quiririm:['Zona 11','Zona 13'], apoio:['Zona 6','Zona 7','Zona 8','Zona 12'], salao:Array.from({length:5},(_,i)=>`Zona ${i+1}`) }},
+    { value:'quarta', label:'Culto de Quarta (12 Zonas)', salaoCount:3, imagem:'quarta.jpg',
+      zonas:{ assessoria:'Assessoria', lider:'Zona 12', intendente:['Zona 7','Zona 8'], quiririm:['Zona 9','Zona 11'], apoio:['Zona 4','Zona 5','Zona 6','Zona 10'], salao:Array.from({length:3},(_,i)=>`Zona ${i+1}`) }},
+  ];
+
+  const COORDS = {
+    domingo1: { 
+      assessoria: {px:0.754, py:0.263}, 
+      lider: {px:0.770, py:0.831}, 
+      intendente: [{px:0.202, py:0.707}, {px:0.770, py:0.707}], 
+      quiririm: [{px:0.200, py:0.767}, {px:0.199, py:0.832}], 
+      apoio: [{px:0.770, py:0.576}, {px:0.201, py:0.642}, {px:0.770, py:0.638}, {px:0.772, py:0.768}], 
+      salao: [{px:0.199, py:0.324}, {px:0.770, py:0.322}, {px:0.202, py:0.387}, {px:0.770, py:0.387}, {px:0.202, py:0.451}, {px:0.771, py:0.450}, {px:0.200, py:0.514}, {px:0.773, py:0.512}, {px:0.201, py:0.575}] 
+    },
+    domingo2: { 
+      assessoria: {px:0.761, py:0.262}, 
+      lider: {px:0.772, py:0.716}, 
+      intendente: [{px:0.197, py:0.593}, {px:0.770, py:0.590}], 
+      quiririm: [{px:0.195, py:0.656}, {px:0.195, py:0.721}], 
+      apoio: [{px:0.776, py:0.462}, {px:0.195, py:0.528}, {px:0.772, py:0.530}, {px:0.770, py:0.657}], 
+      salao: [{px:0.195, py:0.341}, {px:0.773, py:0.338}, {px:0.195, py:0.403}, {px:0.774, py:0.406}, {px:0.198, py:0.463}] 
+    },
+    quarta: { 
+      assessoria: {px:0.762, py:0.263}, 
+      lider: {px:0.768, py:0.735},  
+      intendente: [{px:0.199, py:0.610}, {px:0.769, py:0.609}],   
+      quiririm: [{px:0.202, py:0.673}, {px:0.198, py:0.735}],  
+      apoio: [{px:0.769, py:0.482}, {px:0.199, py:0.543}, {px:0.770, py:0.544}, {px:0.770, py:0.672}],  
+      salao: [{px:0.202, py:0.419}, {px:0.773, py:0.416}, {px:0.200, py:0.479}] 
+    },
+  };
+
+  const selCulto = document.getElementById('seletorCulto');
+  CULTOS.forEach(c => selCulto.innerHTML += `<option value="${c.value}">${c.label}</option>`);
+
+  function getCulto(){ return CULTOS.find(c=>c.value===selCulto.value); }
+  function optsHtml(lista){ return `<option value="">— selecionar —</option>`+lista.map(n=>`<option value="${n}">${n}</option>`).join(''); }
+  function getZonaLabel(f,i,culto){ const z=culto.zonas[f.id]; return Array.isArray(z)?z[i]:z; }
+
+  function buildFuncoes(){
+    const culto = getCulto();
+    let html='';
+    FUNCOES.forEach((f,fi) => {
+      const zonaStr = Array.isArray(culto.zonas[f.id]) ? culto.zonas[f.id].join(', ') : culto.zonas[f.id];
+      html+=`<div class="grupo">
+        <div class="grupo-header">
+          <div class="dot" style="background:${f.cor}"></div>
+          <span>${f.label}</span>
+          <span class="info">${zonaStr}</span>
+        </div>
+        <div class="slots">`;
+      for(let i=0;i<f.slots;i++){
+        html+=`<div class="slot">
+          <label>${getZonaLabel(f,i,culto)}</label>
+          <select id="func_${f.id}_${i}" style="border-left-color:${f.cor}">${optsHtml(f.grupo)}</select>
+        </div>`;
+      }
+      html+=`</div></div>`;
+      if(fi < FUNCOES.length-1) html+=`<div class="divider"></div>`;
+    });
+    document.getElementById('cardFuncoes').innerHTML=html;
+  }
+
+  function buildChips(){
+    const usados = jaUsados();
+    const c = document.getElementById('chipsSalaoLista'); c.innerHTML='';
+    [...LISTA_SALAO].sort().forEach(n => {
+      const on  = presSalao[n];
+      const ind = usados.has(n);
+      c.innerHTML += `<div class="chip-nome${on?' on':''}${ind?' ind':''}" onclick="toggleChip('${n}')">${n}</div>`;
+    });
+    renderChipsSelecionados();
+    atualizarBadge();
+  }
+
+  function renderChipsSelecionados(){
+    const sel = document.getElementById('chipsSelecionados');
+    const nomesSel = LISTA_SALAO.filter(n=>presSalao[n]).sort();
+    if(nomesSel.length === 0){ sel.innerHTML=''; return; }
+    sel.innerHTML = nomesSel.map(n =>
+      `<div class="chip-sel">${n}<span class="rem" onclick="desmarcar('${n}')">×</span></div>`
+    ).join('');
+  }
+
+  function desmarcar(nome){
+    presSalao[nome] = false;
+    buildChips();
+    buildSalaoSlots(true);
+  }
+
+  function toggleDropdown(){
+    const trigger = document.getElementById('dropTrigger');
+    const painel  = document.getElementById('dropPainel');
+    trigger.classList.toggle('aberto');
+    painel.classList.toggle('aberto');
+  }
+
+  function toggleChip(nome){
+    presSalao[nome] = !presSalao[nome];
+    buildChips();
+    buildSalaoSlots(true);
+  }
+
+  function atualizarBadge(){
+    const total = LISTA_SALAO.filter(n=>presSalao[n]).length;
+    document.getElementById('badgeSalao').textContent = `${total} presentes`;
+  }
+
+  function buildSalaoSlots(manterValores){
+    const culto = getCulto();
+    const disp = LISTA_SALAO.filter(n=>presSalao[n]).sort();
+    const opts = `<option value="">— selecionar —</option>`+disp.map(n=>`<option value="${n}">${n}</option>`).join('');
+
+    const vals = [];
+    if(manterValores){
+      for(let i=0;i<culto.salaoCount;i++){
+        const el=document.getElementById(`salao_${i}`); vals.push(el?el.value:'');
+      }
+    }
+
+    let html='';
+    for(let i=0;i<culto.salaoCount;i++){
+      html+=`<div class="slot">
+        <label>${culto.zonas.salao[i]}</label>
+        <select id="salao_${i}" style="border-left-color:#888;border-left-width:3px">${opts}</select>
+      </div>`;
+    }
+    document.getElementById('formSalao').innerHTML=html;
+
+    if(manterValores){
+      vals.forEach((v,i)=>{ const el=document.getElementById(`salao_${i}`); if(el&&v) el.value=v; });
+    }
+  }
+
+  function mudarCulto(){
+    buildFuncoes();
+    buildChips();
+    buildSalaoSlots(false);
+  }
+
+  function jaUsados(){
+    const s=new Set();
+    FUNCOES.forEach(f=>{ for(let i=0;i<f.slots;i++){ const v=document.getElementById(`func_${f.id}_${i}`)?.value; if(v) s.add(v); }});
+    return s;
+  }
+
+  function embaralhar(l){ let c=[...l]; for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]];} return c; }
+
+  function limparSalao() {
+    const culto = getCulto();
+    for(let i=0; i<culto.salaoCount; i++) document.getElementById(`salao_${i}`).value='';
+    LISTA_SALAO.forEach(n=>presSalao[n]=false);
+    buildChips();
+    document.getElementById('dropTrigger').classList.remove('aberto');
+    document.getElementById('dropPainel').classList.remove('aberto');
+  }
+
+  function distribuirEFechar(){
+    distribuirSalao();
+    // Fecha o painel depois de distribuir para revelar os slots preenchidos
+    document.getElementById('dropTrigger').classList.remove('aberto');
+    document.getElementById('dropPainel').classList.remove('aberto');
+  }
+
+  function distribuirSalao(){
+    const culto = getCulto();
+    const usados = jaUsados();
+    for(let i=0; i<culto.salaoCount; i++){
+      const val = document.getElementById(`salao_${i}`).value;
+      if(val) usados.add(val);
+    }
+
+    const disponiveis = LISTA_SALAO.filter(n => presSalao[n] && !usados.has(n));
+    let H = embaralhar(disponiveis.filter(n =>  HOMENS_SET.has(n)));
+    let M = embaralhar(disponiveis.filter(n => !HOMENS_SET.has(n)));
+
+    // Zonas são pares físicos: Z1(esq)+Z2(dir) = fila 1, Z3+Z4 = fila 2...
+    // Índice 0=Z1 esq, 1=Z2 dir, 2=Z3 esq, 3=Z4 dir...
+    // Cada fila coloca um gênero na esq e outro na dir, alternando por fila
+    const vagasIdx = [];
+    for(let i=0; i<culto.salaoCount; i++){
+      if(!document.getElementById(`salao_${i}`).value) vagasIdx.push(i);
+    }
+
+    const resultado = {};
+    let ih = 0, im = 0;
+    let hNaEsq = Math.random() < 0.5;
+
+    for(let v = 0; v < vagasIdx.length; v += 2){
+      const idxEsq = vagasIdx[v];
+      const idxDir = vagasIdx[v + 1]; // undefined se for última vaga ímpar
+
+      if(idxDir !== undefined){
+        // Fila completa: esq e dir recebem gêneros diferentes
+        const pEsq = hNaEsq
+          ? (ih < H.length ? H[ih++] : im < M.length ? M[im++] : null)
+          : (im < M.length ? M[im++] : ih < H.length ? H[ih++] : null);
+        const pDir = hNaEsq
+          ? (im < M.length ? M[im++] : ih < H.length ? H[ih++] : null)
+          : (ih < H.length ? H[ih++] : im < M.length ? M[im++] : null);
+        if(pEsq) resultado[idxEsq] = pEsq;
+        if(pDir) resultado[idxDir] = pDir;
+        hNaEsq = !hNaEsq; // próxima fila inverte
+      } else {
+        // Última zona sem par: qualquer um
+        const p = ih < H.length ? H[ih++] : im < M.length ? M[im++] : null;
+        if(p) resultado[idxEsq] = p;
+      }
+    }
+
+    let vazias = 0;
+    for(let i=0; i<culto.salaoCount; i++){
+      const sel = document.getElementById(`salao_${i}`);
+      if(!sel.value){ if(resultado[i]) sel.value = resultado[i]; else vazias++; }
+    }
+    if(vazias > 0) alert(`Aviso: ${vazias} vaga(s) ficaram vazias — marque mais pessoas como presentes no salão.`);
+  }
+
+  function mudarCulto(){
+    LISTA_SALAO.forEach(n=>presSalao[n]=false);
+    buildFuncoes();
+    buildChips();
+    buildSalaoSlots(false);
+    document.getElementById('dropTrigger').classList.remove('aberto');
+    document.getElementById('dropPainel').classList.remove('aberto');
+  }
+
+  function gerarImagem(){
+    const culto=getCulto(); const coords=COORDS[culto.value];
+    const canvas=document.getElementById('meuCanvas'); const ctx=canvas.getContext('2d');
+    const img=new Image(); img.src=culto.imagem;
+    
+    img.onload=function(){
+      canvas.width=img.width; canvas.height=img.height;
+      ctx.drawImage(img,0,0);
+      const W=canvas.width, H=canvas.height;
+      
+      ctx.font=`600 ${W*0.021}px Inter,Arial,sans-serif`;
+      
+      function escrever(nome, coord){
+        if(!nome||!coord) return;
+        
+        const x = W * coord.px; 
+        const y = H * coord.py;
+        const bw = W * 0.17; 
+        const bh = H * 0.033;
+        
+        ctx.fillStyle='rgba(255, 255, 255, 0.95)';
+        ctx.beginPath();
+        // A MÁGICA DO ALINHAMENTO: A caixa nasce no "x" exato e cresce para a direita
+        ctx.roundRect ? ctx.roundRect(x, y - (bh/2), bw, bh, 8) : ctx.rect(x, y - (bh/2), bw, bh);
+        ctx.fill(); 
+        
+        ctx.strokeStyle='rgba(74, 96, 255, 0.3)';
+        ctx.lineWidth=1.5;
+        ctx.stroke();
+        
+        ctx.fillStyle='#2D3142'; 
+        ctx.textAlign='left'; 
+        ctx.textBaseline='middle';
+        // O nome é escrito com uma pequena margem (6) logo após a borda da caixa
+        ctx.fillText(nome, x + 6, y);
+      }
+      
+      FUNCOES.forEach(f => { 
+        for(let i=0; i<f.slots; i++){ 
+          const nome = document.getElementById(`func_${f.id}_${i}`)?.value; 
+          const c = coords[f.id]; 
+          escrever(nome, Array.isArray(c) ? c[i] : c); 
+        }
+      });
+      
+      for(let i=0; i<culto.salaoCount; i++) {
+          escrever(document.getElementById(`salao_${i}`)?.value, coords.salao[i]);
+      }
+      
+      document.getElementById('imagemFinal').src = canvas.toDataURL('image/jpeg',0.9);
+      const area = document.getElementById('areaResultado'); 
+      area.style.display='block'; 
+      area.scrollIntoView({behavior:'smooth'});
+    };
+    
+    img.onerror = () => alert(`Arquivo de imagem '${culto.imagem}' não encontrado. Lembre-se de colocar a foto na pasta!`);
+  }
+
+  mudarCulto();
+</script>
+</body>
+</html>
